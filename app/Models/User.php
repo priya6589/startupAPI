@@ -21,6 +21,20 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'gender',
+        'city',
+        'country',
+        'linkedin_url',
+        'status',
+        'role',
+        'phone_no',
+        'approval_status',
+        'proof1_no',
+        'proof1_pic',
+        'proof2_no',
+        'proof2_pic',
+        'profile_pic',
+        'profile_desc'
     ];
 
     /**

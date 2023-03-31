@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class CoFounder extends Model
 {
     use HasFactory;
+
+    protected $table = 'cofounders';
 }
