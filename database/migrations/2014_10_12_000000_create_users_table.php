@@ -34,6 +34,7 @@ return new class extends Migration
             $table->text('profile_desc')->nullable();
             $table->rememberToken();
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+
         });
     }
 

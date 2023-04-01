@@ -26,9 +26,10 @@ class CreateBusinessDetailsTable extends Migration
             $table->string('sector')->nullable();
             $table->string('stage')->nullable();
             $table->date('startup_date')->nullable();
-            $table->string('business_file')->nullable();
-            $table->string('proof1_file')->nullable();
-            $table->string('proof2_file')->nullable();
+            // $table->string('business_file')->nullable();
+            // $table->string('proof1_file')->nullable();
+            // $table->string('proof2_file')->nullable();
+            $table->string('total_assets')->nullable();
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
         });
     }
