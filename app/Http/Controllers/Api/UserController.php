@@ -90,16 +90,18 @@ class UserController extends Controller
     public function investor_register(Request $request)
     {
         try {
+            
             $validator = Validator::make($request->all(), [
-                'name' => 'required|max:255',
+                'firstname' => 'required|max:255',
+                'lastname' => 'required|max:255',
                 'email' => 'required|email|unique:users',
-                'password' => 'required|string|min:8|max:16|confirmed',
-                'phone_no' => 'required|string|min:10|max:16',
+                // 'password' => 'required|string|min:8|max:16|confirmed',
+                'phoneno' => 'required|string|min:10|max:20',
                 'gender' => 'required',
                 'city' => 'required',
                 'country' => 'required',
-                'linkedin_url' => 'required|url',
-                'profile_desc' => 'required|string'
+                'linkedinurl' => 'required|url',
+                // 'profile_desc' => 'required|string'
             ]);
             if ($validator->fails()) {
                 return response()->json([
@@ -110,14 +112,14 @@ class UserController extends Controller
             } else {
                 // Store the user in the database
                 $user = new User();
-                $user->name = $request->name;
+                $user->name = $request->firstname." ".$request->lastname;
                 $user->email = $request->email;
-                $user->password = Hash::make($request->password);
-                $user->phone_no = $request->phone_no;
+                // $user->password = Hash::make($request->password);
+                // $user->phone_no = $request->phoneno;
                 $user->gender = $request->gender;
                 $user->city = $request->city;
                 $user->country = $request->country;
-                $user->linkedin_url = $request->linkedin_url;
+                $user->linkedin_url = $request->linkedinurl;
                 $user->profile_desc = $request->profile_desc;
                 $data = $user->save();
                 return response()->json(['status' => true, 'message' => 'User register successfully', 'error' => '', 'data' => $data], 200);
@@ -303,6 +305,25 @@ class UserController extends Controller
                 return response()->json(['status' => true, 'message' => "single data fetching successfully", 'data' => $user], 200);
             } else {
                 return response()->json(['status' => false, 'message' => "There has been error for fetching the single", 'data' => ""], 400);
+            }
+        } catch (\Exception $e) {
+        }
+    }
+
+    public function join_to_invest(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|email|unique:users',
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'invalid email error',
+                    'errors' => $validator->errors(),
+                ], 200);
+            }else {
+                return response()->json(['status' => true, 'message' => "valid email", 'data' => $request->all()], 200);
             }
         } catch (\Exception $e) {
         }
