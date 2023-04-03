@@ -23,6 +23,8 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('startup-register', [App\Http\Controllers\Api\UserController::class, 'startup_register']);
     Route::post('investor-register', [App\Http\Controllers\Api\UserController::class, 'investor_register']);
     Route::get('user-login', [App\Http\Controllers\Api\UserController::class, 'user_login']);
+    Route::get('send-otp', [App\Http\Controllers\Api\UserController::class, 'send_otp']);
+    Route::post('confirm-otp', [App\Http\Controllers\Api\UserController::class, 'confirm_otp']);
 
     Route::post('update-profile/{id}', [App\Http\Controllers\Api\UserController::class, 'update_profile']);
     Route::get('single-user/{id}', [App\Http\Controllers\Api\UserController::class, 'get_single_user']);

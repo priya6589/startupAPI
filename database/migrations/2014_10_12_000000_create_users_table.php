@@ -17,23 +17,28 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('phone')->unique()->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->string('gender');
             $table->string('city');
             $table->string('country');
             $table->string('linkedin_url')->nullable();
-            $table->string('status')->default('active');
-            $table->string('role')->default('user');
-            $table->string('approval_status')->default('pending');
+            $table->text('profile')->nullable();
+            $table->string('residence_worth')->nullable();
+            $table->string('experience')->nullable();
             $table->string('proof1_no')->nullable();
             $table->string('proof1_pic')->nullable();
             $table->string('proof2_no')->nullable();
             $table->string('proof2_pic')->nullable();
             $table->string('profile_pic')->nullable();
             $table->text('profile_desc')->nullable();
+            $table->boolean('kyc_purposes')->nullable();
+            $table->enum('status',['active','inactive','deleted'])->default('active');
+            $table->enum('role',['user','investor','founder'])->default('user');
+            $table->enum('approval_status',['approved','pending','cencelled'])->default('pending');
             $table->rememberToken();
-            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamps();
 
         });
     }

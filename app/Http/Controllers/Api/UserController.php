@@ -12,6 +12,8 @@ use App\Models\User;
 use App\Models\Business;
 use App\Models\BankDetails;
 use App\Models\CoFounder;
+use App\Models\VerificationCode;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -90,13 +92,13 @@ class UserController extends Controller
     public function investor_register(Request $request)
     {
         try {
-            
+
             $validator = Validator::make($request->all(), [
                 'firstname' => 'required|max:255',
                 'lastname' => 'required|max:255',
                 'email' => 'required|email|unique:users',
                 // 'password' => 'required|string|min:8|max:16|confirmed',
-                'phoneno' => 'required|string|min:10|max:20',
+                'phone' => 'required|string|min:10|max:20',
                 'gender' => 'required',
                 'city' => 'required',
                 'country' => 'required',
@@ -108,21 +110,28 @@ class UserController extends Controller
                     'status' => false,
                     'message' => 'Validation error',
                     'errors' => $validator->errors(),
-                ], 422);
+                ], 200);
             } else {
                 // Store the user in the database
                 $user = new User();
-                $user->name = $request->firstname." ".$request->lastname;
+                $user->name = $request->firstname . " " . $request->lastname;
                 $user->email = $request->email;
                 // $user->password = Hash::make($request->password);
-                // $user->phone_no = $request->phoneno;
+                $user->phone = $request->phone;
                 $user->gender = $request->gender;
                 $user->city = $request->city;
                 $user->country = $request->country;
                 $user->linkedin_url = $request->linkedinurl;
-                $user->profile_desc = $request->profile_desc;
+                $user->profile = $request->profile;
+                $user->residence_worth = $request->residence_worth;
+                $user->experience = $request->experience;
                 $data = $user->save();
-                return response()->json(['status' => true, 'message' => 'User register successfully', 'error' => '', 'data' => $data], 200);
+                $otp = VerificationCode::create([
+                    'user_id' => 1,
+                    'otp' => rand(1000, 9999),
+                    'expire_at' => Carbon::now()->addMinutes(1)
+                ]);
+                return response()->json(['status' => true, 'message' => 'User register successfully', 'error' => '', 'data' => $data,'otp'=>$otp], 200);
             }
         } catch (\Exception $e) {
             throw new HttpException(500, $e->getMessage());
@@ -300,7 +309,7 @@ class UserController extends Controller
     public function get_single_user(Request $request)
     {
         try {
-            $user = User::where('id',$request->id)->first();
+            $user = User::where('id', $request->id)->first();
             if ($user) {
                 return response()->json(['status' => true, 'message' => "single data fetching successfully", 'data' => $user], 200);
             } else {
@@ -322,9 +331,39 @@ class UserController extends Controller
                     'message' => 'invalid email error',
                     'errors' => $validator->errors(),
                 ], 200);
-            }else {
+            } else {
                 return response()->json(['status' => true, 'message' => "valid email", 'data' => $request->all()], 200);
             }
+        } catch (\Exception $e) {
+        }
+    }
+
+
+    public function send_otp()
+    {
+        try {
+            $otp = VerificationCode::create([
+                'user_id' => 1,
+                'otp' => rand(1000, 9999),
+                'expire_at' => Carbon::now()->addMinutes(1)
+            ]);
+            return response()->json(['status' => true, 'message' => "otp send successfully", 'data' => $otp->otp], 200);
+        } catch (\Exception $e) {
+        }
+    }
+
+    public function confirm_otp(Request $request)
+    {
+        try {
+            $verificationCode = VerificationCode::where('user_id', 1)->where('otp', $request->otp)->first();
+            $now = Carbon::now();
+            if (!$verificationCode) {
+                return response()->json(['status' => false, 'message' => "Your OTP is not correct", 'data' => ''], 200);
+            } elseif ($verificationCode && $now->isAfter($verificationCode->expire_at)) {
+                return response()->json(['status' => false, 'message' => "Your OTP has been expired", 'data' => ''], 200);
+            }
+
+            return response()->json(['status' => true, 'message' => "otp successfully confirmed", 'data' => ''], 200);
         } catch (\Exception $e) {
         }
     }
