@@ -97,7 +97,7 @@ class UserController extends Controller
                 'firstname' => 'required|max:255',
                 'lastname' => 'required|max:255',
                 'email' => 'required|email|unique:users',
-                // 'password' => 'required|string|min:8|max:16|confirmed',
+                'password' => 'required|string|min:8|max:16',
                 'phone' => 'required|string|min:10|max:20',
                 'gender' => 'required',
                 'city' => 'required',
@@ -116,7 +116,7 @@ class UserController extends Controller
                 $user = new User();
                 $user->name = $request->firstname . " " . $request->lastname;
                 $user->email = $request->email;
-                // $user->password = Hash::make($request->password);
+                $user->password = Hash::make($request->password);
                 $user->phone = $request->phone;
                 $user->gender = $request->gender;
                 $user->city = $request->city;
