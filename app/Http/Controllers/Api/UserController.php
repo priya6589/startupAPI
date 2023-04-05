@@ -21,6 +21,10 @@ use Carbon\Carbon;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
     public function userRegister(Request $request)
     {
         try {
@@ -200,13 +204,22 @@ class UserController extends Controller
                 ], 422);
             }
             $credentials = $request->only('email', 'password');
-            if (Auth::attempt($credentials)) {
-                 $user = Auth::user();
-                 $token = JWTAuth::fromUser($user);
-               return response()->json(['status' => true, 'message' => 'User logged in successfully', 'data' => ['token' => $token]], 200);
-            } else {
-                return response()->json(['status' => false, 'message' => 'Please enter correct credentials!', 'error' => '', 'data' => ''], 400);
+            $token = Auth::attempt($credentials);
+            if (!$token) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized',
+                ], 401);
             }
+            $user = Auth::user();
+            return response()->json([
+                'status' => 'User logged in successfully',
+                'user' => $user,
+                'authorisation' => [
+                    'token' => $token,
+                    'type' => 'bearer',
+                ]
+            ]);
         } catch (\Exception $e) {
             throw new HttpException(500, $e->getMessage());
         }
