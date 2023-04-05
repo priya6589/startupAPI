@@ -12,11 +12,51 @@ use App\Models\User;
 use App\Models\Business;
 use App\Models\BankDetails;
 use App\Models\CoFounder;
+use App\Models\About;
+use App\Models\Contact;
+use Mail;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Models\VerificationCode;
 use Carbon\Carbon;
 
 class UserController extends Controller
 {
+    public function userRegister(Request $request)
+    {
+        try {
+          
+            $validator = Validator::make($request->all(), [
+                'firstname' => 'required|max:255',
+                'lastname' => 'required|max:255',
+                'email' => 'required|email|unique:users',
+                'password' => 'required|string|min:8|max:16',
+                'role' => 'required|string'
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validator->errors(),
+                ], 200);
+            } else {
+                // Store the user in the database
+                $user = new User();
+                $user->name = $request->firstname . " " . $request->lastname;
+                $user->email = $request->email;
+                $user->password = Hash::make($request->password);
+                $user->role     =$request->role;
+                $data = $user->save();
+              
+            
+                $token = JWTAuth::fromUser($user);
+
+                return response()->json(['status' => true, 'message' => 'User register successfully','data' => ['user' => $user]], 200);
+            }
+        } catch (\Exception $e) {
+            throw new HttpException(500, $e->getMessage());
+        }
+    }
+
     public function startup_register(Request $request)
     {
         try {
@@ -66,6 +106,8 @@ class UserController extends Controller
                 $user->profile_desc = $request->profile_desc;
                 $user->save();
 
+                $token = JWTAuth::fromUser($user);
+
                 $business = new Business();
                 $business->business_name = $request->business_name;
                 $business->user_id = $user->id;
@@ -82,9 +124,9 @@ class UserController extends Controller
                     $business->logo = $imageName;
                 }
                 $business->description = $request->description;
-                $data = $business->save();
+                $business->save();
             }
-            return response()->json(['status' => true, 'message' => 'User register successfully', 'error' => '', 'data' => ''], 200);
+           return response()->json(['status' => true, 'message' => 'User register successfully','data' => ['user' => $user,'token' => $token]], 200);
         } catch (\Exception $e) {
             throw new HttpException(500, $e->getMessage());
         }
@@ -92,7 +134,7 @@ class UserController extends Controller
     public function investor_register(Request $request)
     {
         try {
-
+          
             $validator = Validator::make($request->all(), [
                 'firstname' => 'required|max:255',
                 'lastname' => 'required|max:255',
@@ -131,12 +173,18 @@ class UserController extends Controller
                     'otp' => rand(1000, 9999),
                     'expire_at' => Carbon::now()->addMinutes(1)
                 ]);
-                return response()->json(['status' => true, 'message' => 'User register successfully', 'error' => '', 'data' => $data,'otp'=>$otp], 200);
+            
+                $token = JWTAuth::fromUser($user);
+
+                return response()->json(['status' => true, 'message' => 'User register successfully','data' => ['user' => $user,'token' => $token,'otp'=>$otp]], 200);
             }
         } catch (\Exception $e) {
             throw new HttpException(500, $e->getMessage());
         }
     }
+
+
+    
     public function user_login(Request $request)
     {
         try {
@@ -153,9 +201,11 @@ class UserController extends Controller
             }
             $credentials = $request->only('email', 'password');
             if (Auth::attempt($credentials)) {
-                return response()->json(['status' => false, 'message' => 'user logedin', 'data' => $credentials], 200);
+                 $user = Auth::user();
+                 $token = JWTAuth::fromUser($user);
+               return response()->json(['status' => true, 'message' => 'User logged in successfully', 'data' => ['token' => $token]], 200);
             } else {
-                return response()->json(['status' => false, 'message' => 'Please enter correct credentials!', 'error' => '', 'data' => ''], 200);
+                return response()->json(['status' => false, 'message' => 'Please enter correct credentials!', 'error' => '', 'data' => ''], 400);
             }
         } catch (\Exception $e) {
             throw new HttpException(500, $e->getMessage());
@@ -309,13 +359,54 @@ class UserController extends Controller
     public function get_single_user(Request $request)
     {
         try {
-            $user = User::where('id', $request->id)->first();
+            $user = User::where('id',$request->id)->first();
             if ($user) {
                 return response()->json(['status' => true, 'message' => "single data fetching successfully", 'data' => $user], 200);
             } else {
                 return response()->json(['status' => false, 'message' => "There has been error for fetching the single", 'data' => ""], 400);
             }
         } catch (\Exception $e) {
+        }
+    }
+    public function save_contact(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|max:255',
+                'email' => 'required|email',
+                'subject' => 'required|string',
+                'message' => 'required|string',
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validator->errors(),
+                ], 422);
+            } else {
+                // Store the user in the database
+                $user = new Contact();
+                $user->name = $request->name;
+                $user->email = $request->email;
+                $user->subject = $request->subject;
+                $user->message = $request->message;
+                $user->save();
+
+                 $data = [
+                    'name' => $user->name,
+                    'email' => $user->email
+                  ];
+
+              Mail::send('contactMail', ['data1'=>$data], function($message) use ($data)
+            {
+                $message->from('demo93119@gmail.com', "StartUp");
+                $message->subject('Welcome to StartUp, '. $data['name'] . '!');
+                $message->to($data['email']);
+            });
+                return response()->json(['status' => true, 'message' => 'Contact stored successfully', 'error' => '', 'data' => ''], 200);
+            }
+        } catch (\Exception $e) {
+            throw new HttpException(500, $e->getMessage());
         }
     }
 
