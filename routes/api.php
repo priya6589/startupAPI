@@ -23,11 +23,11 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('startup-register', [App\Http\Controllers\Api\UserController::class, 'startup_register']);
     Route::post('register', [App\Http\Controllers\Api\UserController::class, 'userRegister']);
     Route::post('investor-register', [App\Http\Controllers\Api\UserController::class, 'investor_register']);
-    Route::get('send-otp', [App\Http\Controllers\Api\UserController::class, 'send_otp']);
+    Route::post('send-otp/{id}', [App\Http\Controllers\Api\UserController::class, 'send_otp']);
     Route::post('confirm-otp', [App\Http\Controllers\Api\UserController::class, 'confirm_otp']);
     Route::post('save-contact', [App\Http\Controllers\Api\UserController::class, 'save_contact']);
     Route::post('user-login', [App\Http\Controllers\Api\UserController::class, 'user_login']);
-
+    Route::get('countries',[App\Http\Controllers\Api\CountryController::class,'all_countries']);
 });
 
 Route::group(['middleware' => ['jwt.verify']], function () {
@@ -44,8 +44,6 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::post('update-business-details/{id}', [App\Http\Controllers\Api\UserController::class, 'business_detail_update']);
 
      // Countries route 
-     Route::get('countries',[App\Http\Controllers\Api\CountryController::class,'all_countries']);
      Route::get('country/{id}',[App\Http\Controllers\Api\CountryController::class,'single_country']);
 
 });
-
