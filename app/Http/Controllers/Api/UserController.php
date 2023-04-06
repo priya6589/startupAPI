@@ -189,8 +189,8 @@ class UserController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'email' => 'required|email',
-                'password' => 'required',
+                'email' => 'required|string|email',
+                'password' => 'required|string',
             ]);
             if ($validator->fails()) {
                 return response()->json([
@@ -200,16 +200,18 @@ class UserController extends Controller
                 ], 422);
             }
             $credentials = $request->only('email', 'password');
-            $token = Auth::attempt($credentials);
+            $token = JWTAuth::attempt($credentials);
             if (!$token) {
                 return response()->json([
-                    'status' => 'error',
+                    'status' => false,
+                    'error' => '',
                     'message' => 'Unauthorized',
                 ], 401);
             }
             $user = Auth::user();
             return response()->json([
-                'status' => 'User logged in successfully',
+                'status' => true,
+                'message'=>'User logged in successfully',
                 'user' => $user,
                 'authorisation' => [
                     'token' => $token,
