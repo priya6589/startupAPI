@@ -24,7 +24,7 @@ class UserController extends Controller
     public function userRegister(Request $request)
     {
         try {
-          
+
             $validator = Validator::make($request->all(), [
                 'firstname' => 'required|max:255',
                 'lastname' => 'required|max:255',
@@ -44,13 +44,13 @@ class UserController extends Controller
                 $user->name = $request->firstname . " " . $request->lastname;
                 $user->email = $request->email;
                 $user->password = Hash::make($request->password);
-                $user->role     =$request->role;
+                $user->role     = $request->role;
                 $data = $user->save();
-              
-            
+
+
                 $token = JWTAuth::fromUser($user);
 
-                return response()->json(['status' => true, 'message' => 'User register successfully','data' => ['user' => $user,'token'=> $token ]], 200);
+                return response()->json(['status' => true, 'message' => 'User register successfully', 'data' => ['user' => $user, 'token' => $token]], 200);
             }
         } catch (\Exception $e) {
             throw new HttpException(500, $e->getMessage());
@@ -126,7 +126,7 @@ class UserController extends Controller
                 $business->description = $request->description;
                 $business->save();
             }
-           return response()->json(['status' => true, 'message' => 'User register successfully','data' => ['user' => $user,'token' => $token]], 200);
+            return response()->json(['status' => true, 'message' => 'User register successfully', 'data' => ['user' => $user, 'token' => $token]], 200);
         } catch (\Exception $e) {
             throw new HttpException(500, $e->getMessage());
         }
@@ -134,7 +134,7 @@ class UserController extends Controller
     public function investor_register(Request $request)
     {
         try {
-          
+
             $validator = Validator::make($request->all(), [
                 'firstname' => 'required|max:255',
                 'lastname' => 'required|max:255',
@@ -173,10 +173,10 @@ class UserController extends Controller
                     'otp' => rand(1000, 9999),
                     'expire_at' => Carbon::now()->addMinutes(1)
                 ]);
-            
+
                 $token = JWTAuth::fromUser($user);
 
-                return response()->json(['status' => true, 'message' => 'User register successfully','data' => ['user' => $user,'token' => $token,'otp'=>$otp]], 200);
+                return response()->json(['status' => true, 'message' => 'User register successfully', 'data' => ['user' => $user, 'token' => $token, 'otp' => $otp]], 200);
             }
         } catch (\Exception $e) {
             throw new HttpException(500, $e->getMessage());
@@ -184,7 +184,7 @@ class UserController extends Controller
     }
 
 
-    
+
     public function user_login(Request $request)
     {
         try {
@@ -368,7 +368,7 @@ class UserController extends Controller
     public function get_single_user(Request $request)
     {
         try {
-            $user = User::where('id',$request->id)->first();
+            $user = User::where('id', $request->id)->first();
             if ($user) {
                 return response()->json(['status' => true, 'message' => "single data fetching successfully", 'data' => $user], 200);
             } else {
@@ -401,17 +401,16 @@ class UserController extends Controller
                 $user->message = $request->message;
                 $user->save();
 
-                 $data = [
+                $data = [
                     'name' => $user->name,
                     'email' => $user->email
-                  ];
+                ];
 
-              Mail::send('contactMail', ['data1'=>$data], function($message) use ($data)
-            {
-                $message->from('demo93119@gmail.com', "StartUp");
-                $message->subject('Welcome to StartUp, '. $data['name'] . '!');
-                $message->to($data['email']);
-            });
+                Mail::send('contactMail', ['data1' => $data], function ($message) use ($data) {
+                    $message->from('demo93119@gmail.com', "StartUp");
+                    $message->subject('Welcome to StartUp, ' . $data['name'] . '!');
+                    $message->to($data['email']);
+                });
                 return response()->json(['status' => true, 'message' => 'Contact stored successfully', 'error' => '', 'data' => ''], 200);
             }
         } catch (\Exception $e) {
@@ -437,18 +436,59 @@ class UserController extends Controller
         } catch (\Exception $e) {
         }
     }
-
-
-    public function send_otp()
+    public function send_otp(Request $request)
     {
         try {
-            $otp = VerificationCode::create([
-                'user_id' => 1,
-                'otp' => rand(1000, 9999),
-                'expire_at' => Carbon::now()->addMinutes(1)
+            $validator = Validator::make($request->all(), [
+                'phone' => 'required',
             ]);
-            return response()->json(['status' => true, 'message' => "otp send successfully", 'data' => $otp->otp], 200);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid phone number',
+                    'errors' => $validator->errors(),
+                ], 200);
+            }
+            $user = User::find($request->id);
+            if (!$user) {
+                return response()->json(['status' => false, 'message' => 'User not found'], 404);
+            }
+            $user->phone = $request->phone;
+            $user->save();
+            
+            $otp = VerificationCode::where('user_id', $user->id)->first();
+            if ($otp) {
+                $otp->otp = rand(1000, 9999);
+                $otp->expire_at = Carbon::now()->addMinutes(1);
+                $otp->save();
+            } else {
+                $otp = VerificationCode::create([
+                    'user_id' => $user->id,
+                    'otp' => rand(1000, 9999),
+                    'expire_at' => Carbon::now()->addMinutes(1),
+                ]);
+            }
+            $data = [
+                'name' => $user->name,
+                'otp' => $otp->otp,
+                'email' => $user->email
+            ];
+            Mail::send('otpMail', ['data' => $data], function ($message) use ($user) {
+                $message->from('demo93119@gmail.com', "StartUp");
+                $message->subject('Welcome to StartUp, ' . $user['name'] . '!');
+                $message->to($user['email']);
+            });
+            return response()->json([
+                'status' => true,
+                'message' => 'OTP sent successfully',
+                'data' => $otp->otp,
+            ], 200);
         } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error sending OTP',
+                'data' => $e->getMessage(),
+            ], 400);
         }
     }
 

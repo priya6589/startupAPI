@@ -23,15 +23,13 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('startup-register', [App\Http\Controllers\Api\UserController::class, 'startup_register']);
     Route::post('register', [App\Http\Controllers\Api\UserController::class, 'userRegister']);
     Route::post('investor-register', [App\Http\Controllers\Api\UserController::class, 'investor_register']);
-    Route::get('send-otp', [App\Http\Controllers\Api\UserController::class, 'send_otp']);
+    Route::post('send-otp/{id}', [App\Http\Controllers\Api\UserController::class, 'send_otp']);
     Route::post('confirm-otp', [App\Http\Controllers\Api\UserController::class, 'confirm_otp']);
     Route::post('save-contact', [App\Http\Controllers\Api\UserController::class, 'save_contact']);
-
+    Route::post('user-login', [App\Http\Controllers\Api\UserController::class, 'user_login']);
 });
 
 Route::group(['middleware' => ['jwt.verify']], function () {
-
-     Route::post('user-login', [App\Http\Controllers\Api\UserController::class, 'user_login']);
 
     Route::post('update-profile/{id}', [App\Http\Controllers\Api\UserController::class, 'update_profile']);
     Route::get('single-user/{id}', [App\Http\Controllers\Api\UserController::class, 'get_single_user']);
