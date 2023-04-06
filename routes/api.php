@@ -31,7 +31,7 @@ Route::group(['middleware' => 'api'], function () {
 
 Route::group(['middleware' => ['jwt.verify']], function () {
 
-     Route::get('user-login', [App\Http\Controllers\Api\UserController::class, 'user_login']);
+     Route::post('user-login', [App\Http\Controllers\Api\UserController::class, 'user_login']);
 
     Route::post('update-profile/{id}', [App\Http\Controllers\Api\UserController::class, 'update_profile']);
     Route::get('single-user/{id}', [App\Http\Controllers\Api\UserController::class, 'get_single_user']);
