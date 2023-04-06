@@ -27,6 +27,7 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('confirm-otp', [App\Http\Controllers\Api\UserController::class, 'confirm_otp']);
     Route::post('save-contact', [App\Http\Controllers\Api\UserController::class, 'save_contact']);
     Route::post('user-login', [App\Http\Controllers\Api\UserController::class, 'user_login']);
+    Route::get('countries',[App\Http\Controllers\Api\CountryController::class,'all_countries']);
 });
 
 Route::group(['middleware' => ['jwt.verify']], function () {
@@ -43,7 +44,6 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::post('update-business-details/{id}', [App\Http\Controllers\Api\UserController::class, 'business_detail_update']);
 
      // Countries route 
-     Route::get('countries',[App\Http\Controllers\Api\CountryController::class,'all_countries']);
      Route::get('country/{id}',[App\Http\Controllers\Api\CountryController::class,'single_country']);
 
 });
