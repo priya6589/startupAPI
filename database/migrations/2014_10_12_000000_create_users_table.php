@@ -25,15 +25,21 @@ return new class extends Migration
             $table->string('country')->nullable();
             $table->string('linkedin_url')->nullable();
             $table->text('profile')->nullable();
-            $table->string('residence_worth')->nullable();
-            $table->string('experience')->nullable();
+            // $table->string('residence_worth')->nullable();
+            // $table->string('experience')->nullable();
             $table->string('profile_pic')->nullable();
             $table->text('profile_desc')->nullable();
-            $table->boolean('kyc_purposes')->nullable();
+            // $table->boolean('kyc_purposes')->nullable();
             $table->enum('status',['active','inactive','deleted'])->default('active');
             // $table->enum('role',['user','investor','founder'])->default('user');
             $table->string('role');
             $table->enum('approval_status',['approved','pending','cencelled'])->default('pending');
+            $table->boolean('reg_step_1')->default(0);
+            $table->boolean('reg_step_2')->default(0);
+            $table->boolean('reg_step_3')->default(0);
+            $table->boolean('reg_step_4')->default(0);
+            $table->boolean('reg_step_5')->default(0);
+            $table->boolean('is_profile_completed')->default(0);
             $table->rememberToken();
             $table->timestamps();
 

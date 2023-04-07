@@ -10,4 +10,24 @@ class Business extends Model
     use HasFactory;
 
     protected $table = 'business_details';
+    protected $fillable = [
+        'user_id',
+        'business_name',
+        'reg_businessname',
+        'website_url',
+        'stage',
+        'department',
+        'startup_date',
+        'description',
+        'primary_residence',
+        'prev_experience',
+        'experience',
+        'cofounder',
+        'logo',
+        'none_select',
+        'kyc_purposes',
+        'tagline',
+        'sector',
+        'business_file'
+    ];
 }

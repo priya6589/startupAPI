@@ -32,7 +32,8 @@ Route::group(['middleware' => 'api'], function () {
 });
 
 Route::group(['middleware' => ['jwt.verify']], function () {
-
+    Route::post('personal-information',[App\Http\Controllers\Api\StartupController::class,'personal_information']);
+    Route::post('business-information',[App\Http\Controllers\Api\StartupController::class,'business_information']);
     Route::post('update-profile/{id}', [App\Http\Controllers\Api\UserController::class, 'update_profile']);
     Route::get('single-user/{id}', [App\Http\Controllers\Api\UserController::class, 'get_single_user']);
     Route::post('join_to_invest', [App\Http\Controllers\Api\UserController::class, 'join_to_invest']);
