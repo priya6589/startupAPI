@@ -28,6 +28,7 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('save-contact', [App\Http\Controllers\Api\UserController::class, 'save_contact']);
     Route::post('user-login', [App\Http\Controllers\Api\UserController::class, 'user_login']);
     Route::get('countries',[App\Http\Controllers\Api\CountryController::class,'all_countries']);
+    Route::post('investor-profile',[App\Http\Controllers\Api\InvestorController::class,'investor_profile']);
 });
 
 Route::group(['middleware' => ['jwt.verify']], function () {
