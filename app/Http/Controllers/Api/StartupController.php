@@ -1,3 +1,4 @@
+
 <?php
 
 namespace App\Http\Controllers\Api;
@@ -26,43 +27,62 @@ class StartupController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function personal_information(Request $request){
-        try {
+        // try {
            
-            $validator = Validator::make($request->all(), [
-                'phone' => 'required',
-                'gender' => 'required',
-                'city' => 'required',
-                'country' => 'required',
-                'linkedin_url' => 'required|url'
-            ]);
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Validation error',
-                    'errors' => $validator->errors(),
-                ], 422);
-            } 
-            else {
-                // Store the user in the database
-                // $user= $request->country;
-              $user=  User::where('id', $request->id)->update([
-                'email' => $request->email,
-                'gender' =>$request->gender,
-                'linkedin_url' => $request->linkedin_url,
-                'city' => $request->city,
-                'phone' => $request->phone,
-                'country' => $request->country,
-                'reg_step_1'=>'1',
-                'updated_at' => Carbon::now(),
-             ]);
-                $user_id = User::find($request->id);
+            // $validator = Validator::make($request->all(), [
+            //     'phone' => 'required',
+            //     'gender' => 'required',
+            //     'city' => 'required',
+            //     'country' => 'required',
+            //     'linkedin_url' => 'required|url'
+            // ]);
+            // if ($validator->fails()) {
+            //     return response()->json([
+            //         'status' => false,
+            //         'message' => 'Validation error',
+            //         'errors' => $validator->errors(),
+            //     ], 422);
+            // } 
+            // else {
+            //     // Store the user in the database
+            //     // $user= $request->country;
+            $user = User::find($request->id);
+                        $user->email = $request->email;
+                        $user->gender = $request->gender;
+                        $user->linkedin_url = $request->linkedin_url;
+                        $user->gender = $request->gender;
+                        $user->city = $request->city;
+                        $user->phone = $request->phone;
+                        $user->country = $request->country;
+                        $user->reg_step_1 = '1';
+                        $user->save();
+            //             $user->linkedin_url = $request->linkedin_url;
+            // $user=  User::where('id', $request->id)->update([
+            //     'email' => $request->email,
+            //     'gender' =>$request->gender,
+            //     'linkedin_url' => $request->linkedin_url,
+            //     'city' => $request->city,
+            //     'phone' => $request->phone,
+            //     'country' => $request->country,
+            //     'reg_step_1'=>'1'
+            //  ]);
+            //   $user=  User::where('id', $request->id)->update([
+            //     'email' => $request->email,
+            //     'gender' =>$request->gender,
+            //     'linkedin_url' => $request->linkedin_url,
+            //     'city' => $request->city,
+            //     'phone' => $request->phone,
+            //     'country' => $request->country,
+            //     'reg_step_1'=>'1'
+            //  ]);
+            //     $user_id = User::find($request->id);
             return response()->json(['status' => true, 'message' => 'Profile updated successfully', 'data' => ['user' => $user]], 200);
-            }
-        } catch (\Exception $e) {
-            throw new HttpException(500, $e->getMessage());
-            return response()->json(['success' => true, 'msg' => 'Error Occuring.'], 500);
+            // }
+        // } catch (\Exception $e) {
+        //     throw new HttpException(500, $e->getMessage());
+        //     return response()->json(['success' => true, 'message' => 'Error Occuring.'], 500);
             
-        }
+        // }
     }
 
     /**

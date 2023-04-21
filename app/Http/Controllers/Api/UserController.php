@@ -42,7 +42,7 @@ class UserController extends Controller
                     'status' => false,
                     'message' => 'Validation error',
                     'errors' => $validator->errors(),
-                ], 200);
+                ], 422);
             } else {
                 // Store the user in the database
                 $user = new User();
@@ -53,7 +53,7 @@ class UserController extends Controller
                 $data = $user->save();
                 // $email_verification_token = Str::random(64);
                 // $email= $user->email;
-                // $user->where('id',$user->id)->update(['email_verification_token'=>$email_verification_token,'email_verified_at'=>Carbon::now()]);
+                $user->where('id',$user->id)->update(['email_verification_token'=>$email_verification_token,'email_verified_at'=>Carbon::now()]);
                 // $sendmail=Mail::to($email)->send(new EmailVerification());
                 $token = Str::random(40);
                 $domain = env('NEXT_URL_LOGIN');
@@ -67,7 +67,7 @@ class UserController extends Controller
                 });
                 $token = JWTAuth::fromUser($user);
 
-                return response()->json(['status' => true, 'message' => 'Register Successfully Please verify your email.', 'data' => ['user' => $user, 'token'=>$token]], 200);
+                return response()->json(['status' => true, 'message' => 'Verification link has been sent to your email.', 'data' => ['user' => $user, 'token'=>$token]], 200);
             }
         } catch (\Exception $e) {
             throw new HttpException(500, $e->getMessage());

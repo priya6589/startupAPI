@@ -35,9 +35,16 @@ class BankDetailsController extends Controller
             $data->ifsc_code       = $request->ifsc_code;
             $data->save();
             $user=User::where('id',$request->id)->update(['reg_step_4'=>'1','is_profile_completed'=>'1']);
+              $mail['email'] = $request->email;
+                $mail['title'] = "Profile Completed";
+                $mail['body'] = "Profile Completed Successfully. ";
+                Mail::send('email.emailVerify', ['mail' => $mail], function ($message) use ($mail) {
+                    $message->to($mail['email'])->subject($mail['title']);
+                });
             return response()->json(['status' => true, 'message' => 'Bank Details stored successfully', 'data' => ['bank_details' => $data]], 200);
         } catch (\Exception $e) {
             throw new HttpException(500, $e->getMessage());
+            return response()->json(['success' => true, 'message' => 'Error Occuring.'], 500);
         }
     }
 
