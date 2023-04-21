@@ -28,41 +28,40 @@ class StartupController extends Controller
     public function personal_information(Request $request){
         try {
            
-            // $validator = Validator::make($request->all(), [
-            //     'email' => 'required|email|unique:users',
-            //     'phone_no' => 'required|string|min:10|max:16',
-            //     'gender' => 'required',
-            //     'city' => 'required',
-            //     'country' => 'required',
-            //     'linkedin_url' => 'required|url'
-            // ]);
-            // if ($validator->fails()) {
-            //     return response()->json([
-            //         'status' => false,
-            //         'message' => 'Validation error',
-            //         'errors' => $validator->errors(),
-            //     ], 422);
-            // } 
-            // else {
+            $validator = Validator::make($request->all(), [
+                'phone' => 'required',
+                'gender' => 'required',
+                'city' => 'required',
+                'country' => 'required',
+                'linkedin_url' => 'required|url'
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validator->errors(),
+                ], 422);
+            } 
+            else {
                 // Store the user in the database
+                // $user= $request->country;
               $user=  User::where('id', $request->id)->update([
                 'email' => $request->email,
                 'gender' =>$request->gender,
                 'linkedin_url' => $request->linkedin_url,
                 'city' => $request->city,
                 'phone' => $request->phone,
-                'country' => $request->countries,
+                'country' => $request->country,
                 'reg_step_1'=>'1',
                 'updated_at' => Carbon::now(),
              ]);
                 $user_id = User::find($request->id);
-        
-
-                $token = JWTAuth::fromUser($user_id);
-            // }
-            return response()->json(['status' => true, 'message' => 'Personal Details stored successfully', 'data' => ['user' => $user,'token',$token]], 200);
+            return response()->json(['status' => true, 'message' => 'Profile updated successfully', 'data' => ['user' => $user]], 200);
+            }
         } catch (\Exception $e) {
             throw new HttpException(500, $e->getMessage());
+            return response()->json(['success' => true, 'msg' => 'Error Occuring.'], 500);
+            
         }
     }
 
@@ -74,38 +73,44 @@ class StartupController extends Controller
     public function business_information(Request $request)
     { 
         try {
-        // $data=$request->all();
-        $data                =  new Business();
-        $data->user_id       = $request->id;
-        $data->business_name = $request->business_name;
-        $data->reg_businessname =$request->reg_businessname;
-        $data->website_url   =  $request->website_url;
-        $data->stage         =  $request->stage;
-        $data->department    =  $request->department;
-        $data->startup_date    =  $request->startup_date;
-        $data->description   =  $request->description;
-        $data->primary_residence=$request->primary_residence;
-        $data->prev_experience =$request->prev_experience;
-        $data->experience     = $request->experience;
-        $data->cofounder     = $request->cofounder;
-        if ($request->hasFile('logo')) {
-            $randomNumber = mt_rand(1000000000, 9999999999);
-            $imagePath = $request->file('logo');
-            $imageName = $randomNumber . $imagePath->getClientOriginalName();
-            $imagePath->move('images/profile', $imageName);
-            $data->logo = $imageName;
+        $userId = $request->user_id;
+        $data  = Business::where('user_id', $userId)->first();
+        if ($data ) {
+            $data ->update($request->all());
+            return response()->json(['status' => true, 'message' => 'Business Details updated successfully', 'data' => ['data' => $data]], 200);
+        } else {
+            $data                =  new Business();
+            $data->user_id       =    $userId;
+            $data->business_name = $request->business_name;
+            $data->reg_businessname =$request->reg_businessname;
+            $data->website_url   =  $request->website_url;
+            $data->stage         =  $request->stage;
+            // $data->department    =  $request->department;
+            $data->startup_date    =  $request->startup_date;
+            $data->description   =  $request->description;
+            // $data->primary_residence=$request->primary_residence;
+            // $data->prev_experience =$request->prev_experience;
+            // $data->experience     = $request->experience;
+            $data->cofounder     = $request->cofounder;
+            // if ($request->hasFile('logo')) {
+            //     $randomNumber = mt_rand(1000000000, 9999999999);
+            //     $imagePath = $request->file('logo');
+            //     $imageName = $randomNumber . $imagePath->getClientOriginalName();
+            //     $imagePath->move('images/profile', $imageName);
+            //     $data->logo = $imageName;
+            // }
+            $data->logo          =$request->logo;
+            // $data->none_select   =$request->none_select;
+            $data->kyc_purposes  = $request->kyc_purposes;
+            $data->tagline       = $request->tagline;
+            $data->sector        = $request->sector;
+            $data->updated_at    =Carbon::now();
+            $data->save();
+            $user=User::where('id', $userId)->update(['reg_step_2'=>'1']);
+            return response()->json(['status' => true, 'message' => 'Business Details stored successfully', 'data' => ['data' => $data]], 200);
         }
-        $data->none_select   =$request->none_select;
-        $data->kyc_purposes  = $request->kyc_purposes;
-        $data->tagline       = $request->tagline;
-        $data->sector        = $request->sector;
-        $data->updated_at    =Carbon::now();
-        $data->save();
-      
-            $user=User::where('id',$request->id)->update(['reg_step_2'=>'1']);
         
         
-        return response()->json(['status' => true, 'message' => 'Business Details stored successfully', 'data' => ['data' => $data]], 200);
     } 
     catch (\Exception $e) {
         throw new HttpException(500, $e->getMessage());
@@ -118,11 +123,24 @@ class StartupController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function get_business_information(Request $request)
     {
-        //
+        try {
+            $userId = $request->id;
+            $data  = Business::where('user_id', $userId)->first();
+            if ($data) {
+                $data  = Business::where('user_id', $userId)->first();
+                    return response()->json(['status' => true, 'message' => "Data fetching successfully", 'data' => $data], 200);
+                }
+            // $data = Business::where('user_id', $request->id)->first();
+            // if ($data) {
+            //     return response()->json(['status' => true, 'message' => "Data fetching successfully", 'data' => $data], 200);
+            // } else {
+            //     return response()->json(['status' => false, 'message' => "There has been error for fetching the business data.", 'data' => ""], 400);
+            // }
+        } catch (\Exception $e) {
+        }
     }
-
     /**
      * Display the specified resource.
      *

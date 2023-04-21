@@ -16,7 +16,6 @@ class CreateBankDetailsTable extends Migration
         Schema::create('bank_details', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('business_id');
             $table->string('bank_name');
             $table->string('account_holder');
             $table->string('account_no');
@@ -24,7 +23,6 @@ class CreateBankDetailsTable extends Migration
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('business_id')->references('id')->on('business_details');
         });
     }
 

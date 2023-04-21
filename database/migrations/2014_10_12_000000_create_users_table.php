@@ -18,8 +18,11 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('phone')->unique()->nullable();
+            $table->string('email_verification_token')->nullable();
             $table->timestamp('email_verified_at')->nullable();
+            // $table->string('email_verification_token')->nullable();
             $table->string('password')->nullable();
+            $table->string('new_password')->nullable();
             $table->string('gender')->nullable();;
             $table->string('city')->nullable();;
             $table->string('country')->nullable();
@@ -38,7 +41,6 @@ return new class extends Migration
             $table->boolean('reg_step_2')->default(0);
             $table->boolean('reg_step_3')->default(0);
             $table->boolean('reg_step_4')->default(0);
-            $table->boolean('reg_step_5')->default(0);
             $table->boolean('is_profile_completed')->default(0);
             $table->rememberToken();
             $table->timestamps();
