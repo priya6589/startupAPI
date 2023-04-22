@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('country')->nullable();
             $table->string('linkedin_url')->nullable();
             $table->text('profile')->nullable();
-            // $table->string('residence_worth')->nullable();
+            $table->string('investor_type')->nullable();
             // $table->string('experience')->nullable();
             $table->string('profile_pic')->nullable();
             $table->text('profile_desc')->nullable();

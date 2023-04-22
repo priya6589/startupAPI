@@ -36,7 +36,7 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('/updated-reset-password',[App\Http\Controllers\Api\UserController::class,'updated_reset_password']);
 });
 
-Route::group(['middleware' => ['jwt.verify']], function () {
+Route::group(['middleware' => ['api']], function () {
     Route::post('personal-information',[App\Http\Controllers\Api\StartupController::class,'personal_information']);
     Route::post('business-information',[App\Http\Controllers\Api\StartupController::class,'business_information']);
     Route::get('get-business-information/{id}',[App\Http\Controllers\Api\StartupController::class,'get_business_information']);
@@ -44,7 +44,8 @@ Route::group(['middleware' => ['jwt.verify']], function () {
     Route::post('basic-information',[App\Http\Controllers\Api\DocumentsController::class,'basic_information']);
     Route::post('bank-details',[App\Http\Controllers\Api\BankDetailsController::class,'bank_details']);
     Route::get('get-bank-information/{id}',[App\Http\Controllers\Api\BankDetailsController::class,'get_bank_information']);
-  
+    Route::post('investor-type-information',[App\Http\Controllers\Api\InvestorController::class,'investor_type_information']);
+    Route::get('get-investor-type-information/{id}', [App\Http\Controllers\Api\InvestorController::class, 'get_investor_type_information']);
     Route::post('update-profile/{id}', [App\Http\Controllers\Api\UserController::class, 'update_profile']);
     Route::get('single-user/{id}', [App\Http\Controllers\Api\UserController::class, 'get_single_user']);
     Route::post('join_to_invest', [App\Http\Controllers\Api\UserController::class, 'join_to_invest']);

@@ -61,7 +61,7 @@
                                         style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;"
                                         valign="top">
                                         Hi Dear,<br>
-                                               Congratulations Your profile has been completed now you have access to raise the funds for your startup business.
+                                               Congratulations Your profile has been completed now you have access to invest your income in best startup choices.
                                     </td>
                                 </tr>
                                 <tr style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">

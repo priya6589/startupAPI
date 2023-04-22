@@ -53,7 +53,7 @@ class UserController extends Controller
                 $data = $user->save();
                 // $email_verification_token = Str::random(64);
                 // $email= $user->email;
-                $user->where('id',$user->id)->update(['email_verification_token'=>$email_verification_token,'email_verified_at'=>Carbon::now()]);
+               
                 // $sendmail=Mail::to($email)->send(new EmailVerification());
                 $token = Str::random(40);
                 $domain = env('NEXT_URL_LOGIN');
@@ -62,11 +62,13 @@ class UserController extends Controller
                 $mail['email'] = $request->email;
                 $mail['title'] = "Verify Your Account";
                 $mail['body'] = "Please click on below link to verify your Account";
+                $user->where('id',$user->id)->update(['email_verification_token'=>$token,'email_verified_at'=>Carbon::now()]);
+
                 Mail::send('email.emailVerify', ['mail' => $mail], function ($message) use ($mail) {
                     $message->to($mail['email'])->subject($mail['title']);
                 });
                 $token = JWTAuth::fromUser($user);
-
+               
                 return response()->json(['status' => true, 'message' => 'Verification link has been sent to your email.', 'data' => ['user' => $user, 'token'=>$token]], 200);
             }
         } catch (\Exception $e) {

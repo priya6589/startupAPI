@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Http\Controllers\Api;
@@ -27,25 +26,25 @@ class StartupController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function personal_information(Request $request){
-        // try {
+        try {
            
-            // $validator = Validator::make($request->all(), [
-            //     'phone' => 'required',
-            //     'gender' => 'required',
-            //     'city' => 'required',
-            //     'country' => 'required',
-            //     'linkedin_url' => 'required|url'
-            // ]);
-            // if ($validator->fails()) {
-            //     return response()->json([
-            //         'status' => false,
-            //         'message' => 'Validation error',
-            //         'errors' => $validator->errors(),
-            //     ], 422);
-            // } 
-            // else {
-            //     // Store the user in the database
-            //     // $user= $request->country;
+            $validator = Validator::make($request->all(), [
+                'phone' => 'required',
+                'gender' => 'required',
+                'city' => 'required',
+                'country' => 'required',
+                'linkedin_url' => 'required|url'
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validator->errors(),
+                ], 422);
+            } 
+            else {
+                // Store the user in the database
+                // $user= $request->country;
             $user = User::find($request->id);
                         $user->email = $request->email;
                         $user->gender = $request->gender;
@@ -77,12 +76,12 @@ class StartupController extends Controller
             //  ]);
             //     $user_id = User::find($request->id);
             return response()->json(['status' => true, 'message' => 'Profile updated successfully', 'data' => ['user' => $user]], 200);
-            // }
-        // } catch (\Exception $e) {
-        //     throw new HttpException(500, $e->getMessage());
-        //     return response()->json(['success' => true, 'message' => 'Error Occuring.'], 500);
+            }
+        } catch (\Exception $e) {
+            throw new HttpException(500, $e->getMessage());
+            return response()->json(['success' => true, 'message' => 'Error Occuring.'], 500);
             
-        // }
+        }
     }
 
     /**
