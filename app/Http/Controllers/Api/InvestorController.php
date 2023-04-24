@@ -66,22 +66,21 @@ class InvestorController extends Controller
     {
         try {
               $data=User::find($request->user_id);
-              $data->investorType= $request->investorType;
+              $data->investorType=$request->investorType;
               $data->reg_step_2 = '1';
               $data->is_profile_completed = '1';
               $data->save();
-
               $mail['email'] = $data->email;
               $mail['title'] = "Profile Completed";
-              $mail['body'] = "Profile has been Completed Successfully. ";
+              $mail['body'] =  "Profile has been Completed Successfully.";
       
               Mail::send('email.InvestorProfileCompleted', ['mail' => $mail], function ($message) use ($mail) {
                   $message->to($mail['email'])->subject($mail['title']);
               });
             return response()->json([
                 'status' => true,
-                'message' => 'Data Saved Successfully.',
-                'data' => ['data' => $data]
+                'message' => 'Profile has been Completed Successfully.',
+                'data' => ['data' =>$request->investorType]
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

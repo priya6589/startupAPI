@@ -26,32 +26,40 @@ class BankDetailsController extends Controller
     public function bank_details(Request $request)
     {
         try {
-            $data = new BankDetails();
-            $data->user_id = $request->id;
-            $data->bank_name = $request->bank_name;
-            $data->account_holder = $request->account_holder;
-            $data->account_no = $request->account_no;
-            $data->ifsc_code = $request->ifsc_code;
-            $data->save();
-            
-            $user = User::find($request->id);
-            $user->reg_step_4 = '1';
-            $user->is_profile_completed = '1';
-            $user->save();
-    
-            $mail['email'] = $user->email;
-            $mail['title'] = "Profile Completed";
-            $mail['body'] = "Profile has been Completed Successfully. ";
-    
-            Mail::send('email.ProfileCompletedMail', ['mail' => $mail], function ($message) use ($mail) {
-                $message->to($mail['email'])->subject($mail['title']);
-            });
-    
-            return response()->json([
-                'status' => true,
-                'message' => 'Bank details stored successfully',
-                'data' => ['bank_details' => $data]
-            ], 200);
+            $userId = $request->id;
+            $data  = BankDetails::where('user_id', $userId)->first();
+            if ($data ) {
+                $data ->update($request->all());
+                return response()->json(['status' => true, 'message' => 'Details updated successfully', 'data' => ['data' => $data]], 200);
+            } else {
+                $data = new BankDetails();
+                $data->user_id = $userId;
+                $data->bank_name = $request->bank_name;
+                $data->account_holder = $request->account_holder;
+                $data->account_no = $request->account_no;
+                $data->ifsc_code = $request->ifsc_code;
+                $data->save();
+                
+                $user = User::find($request->id);
+                $user->reg_step_4 = '1';
+                $user->is_profile_completed = '1';
+                $user->save();
+        
+                $mail['email'] = $user->email;
+                $mail['title'] = "Profile Completed";
+                $mail['body'] = "Profile has been Completed Successfully. ";
+        
+                Mail::send('email.ProfileCompletedMail', ['mail' => $mail], function ($message) use ($mail) {
+                    $message->to($mail['email'])->subject($mail['title']);
+                });
+        
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Bank details stored successfully',
+                    'data' => ['bank_details' => $request->id]
+                ], 200);
+             
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,

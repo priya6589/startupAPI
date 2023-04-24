@@ -26,78 +26,16 @@ use App\Models\PasswordReset;
 
 class UserController extends Controller
 {
-    public function userRegister(Request $request)
-    {
-       try {
-
-            $validator = Validator::make($request->all(), [
-                'firstname' => 'required|max:255',
-                'lastname' => 'required|max:255',
-                'email' => 'required|email|unique:users',
-                'password' => 'required|string|min:8|max:16',
-                'role' => 'required|string'
-            ]);
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Validation error',
-                    'errors' => $validator->errors(),
-                ], 422);
-            } else {
-                // Store the user in the database
-                $user = new User();
-                $user->name = $request->firstname . " " . $request->lastname;
-                $user->email = $request->email;
-                $user->password = Hash::make($request->password);
-                $user->role     = $request->role;
-                $data = $user->save();
-                // $email_verification_token = Str::random(64);
-                // $email= $user->email;
-               
-                // $sendmail=Mail::to($email)->send(new EmailVerification());
-                $token = Str::random(40);
-                $domain = env('NEXT_URL_LOGIN');
-                $url = $domain . '/?token=' . $token;
-                $mail['url'] = $url;
-                $mail['email'] = $request->email;
-                $mail['title'] = "Verify Your Account";
-                $mail['body'] = "Please click on below link to verify your Account";
-                $user->where('id',$user->id)->update(['email_verification_token'=>$token,'email_verified_at'=>Carbon::now()]);
-
-                Mail::send('email.emailVerify', ['mail' => $mail], function ($message) use ($mail) {
-                    $message->to($mail['email'])->subject($mail['title']);
-                });
-                $token = JWTAuth::fromUser($user);
-               
-                return response()->json(['status' => true, 'message' => 'Verification link has been sent to your email.', 'data' => ['user' => $user, 'token'=>$token]], 200);
-            }
-        } catch (\Exception $e) {
-            throw new HttpException(500, $e->getMessage());
-            return response()->json(['success' => true, 'msg' => 'User has not been Register Successfully.'], 500);
-        }
-    }
-
-    // public function startup_register(Request $request)
+    // public function userRegister(Request $request)
     // {
-    //     try {
+    //    try {
+
     //         $validator = Validator::make($request->all(), [
-    //             'name' => 'required|max:255',
+    //             'firstname' => 'required|max:255',
+    //             'lastname' => 'required|max:255',
     //             'email' => 'required|email|unique:users',
-    //             'password' => 'required|string|min:8|max:16|confirmed',
-    //             'phone_no' => 'required|string|min:10|max:16',
-    //             'gender' => 'required',
-    //             'city' => 'required',
-    //             'country' => 'required',
-    //             'linkedin_url' => 'required|url',
-    //             'profile_pic' => 'required|image',
-    //             'profile_desc' => 'required|string',
-    //             'website_url' => 'required|url',
-    //             'business_name' => 'required|max:255',
-    //             'reg_businessname' => 'required|max:255',
-    //             'sector' => 'required|max:255',
-    //             'stage' => 'required|max:255',
-    //             'logo' => 'required|image',
-    //             'description' => 'required'
+    //             'password' => 'required|string|min:8|max:16',
+    //             'role' => 'required|string'
     //         ]);
     //         if ($validator->fails()) {
     //             return response()->json([
@@ -108,102 +46,82 @@ class UserController extends Controller
     //         } else {
     //             // Store the user in the database
     //             $user = new User();
-    //             $user->name = $request->name;
-    //             $user->email = $request->email;
-    //             $user->password = Hash::make($request->password);
-    //             $user->phone_no = $request->phone_no;
-    //             $user->gender = $request->gender;
-    //             $user->city = $request->city;
-    //             $user->country = $request->country;
-    //             $user->linkedin_url = $request->linkedin_url;
-    //             if ($request->hasFile('profile_pic')) {
-    //                 $randomNumber = mt_rand(1000000000, 9999999999);
-    //                 $imagePath = $request->file('profile_pic');
-    //                 $imageName = $randomNumber . $imagePath->getClientOriginalName();
-    //                 $imagePath->move('images/profile', $imageName);
-    //                 $user->profile_pic = $imageName;
-    //             }
-    //             $user->profile_desc = $request->profile_desc;
-    //             $user->save();
-
-    //             $token = JWTAuth::fromUser($user);
-
-    //             $business = new Business();
-    //             $business->business_name = $request->business_name;
-    //             $business->user_id = $user->id;
-    //             $business->reg_businessname = $request->reg_businessname;
-    //             $business->website_url = $request->website_url;
-    //             $business->sector = $request->sector;
-    //             $business->stage = $request->stage;
-    //             $business->startup_date = $request->startup_date;
-    //             if ($request->hasFile('logo')) {
-    //                 $randomNumber = mt_rand(1000000000, 9999999999);
-    //                 $imagePath = $request->file('logo');
-    //                 $imageName = $randomNumber . $imagePath->getClientOriginalName();
-    //                 $imagePath->move('images/profile', $imageName);
-    //                 $business->logo = $imageName;
-    //             }
-    //             $business->description = $request->description;
-    //             $business->save();
-    //         }
-    //         return response()->json(['status' => true, 'message' => 'User register successfully', 'data' => ['user' => $user, 'token' => $token]], 200);
-    //     } catch (\Exception $e) {
-    //         throw new HttpException(500, $e->getMessage());
-    //     }
-    // }
-    // public function investor_register(Request $request)
-    // {
-    //     try {
-
-    //         $validator = Validator::make($request->all(), [
-    //             'firstname' => 'required|max:255',
-    //             'lastname' => 'required|max:255',
-    //             'email' => 'required|email|unique:users',
-    //             'password' => 'required|string|min:8|max:16',
-    //             'phone' => 'required|string|min:10|max:20',
-    //             'gender' => 'required',
-    //             'city' => 'required',
-    //             'country' => 'required',
-    //             'linkedinurl' => 'required|url',
-    //             // 'profile_desc' => 'required|string'
-    //         ]);
-    //         if ($validator->fails()) {
-    //             return response()->json([
-    //                 'status' => false,
-    //                 'message' => 'Validation error',
-    //                 'errors' => $validator->errors(),
-    //             ], 200);
-    //         } else {
-    //             // Store the user in the database
-    //             $user = new User();
     //             $user->name = $request->firstname . " " . $request->lastname;
     //             $user->email = $request->email;
     //             $user->password = Hash::make($request->password);
-    //             $user->phone = $request->phone;
-    //             $user->gender = $request->gender;
-    //             $user->city = $request->city;
-    //             $user->country = $request->country;
-    //             $user->linkedin_url = $request->linkedinurl;
-    //             $user->profile = $request->profile;
-    //             $user->residence_worth = $request->residence_worth;
-    //             $user->experience = $request->experience;
+    //             $user->role     = $request->role;
     //             $data = $user->save();
-    //             $otp = VerificationCode::create([
-    //                 'user_id' => 1,
-    //                 'otp' => rand(1000, 9999),
-    //                 'expire_at' => Carbon::now()->addMinutes(1)
-    //             ]);
+    //             // $email_verification_token = Str::random(64);
+    //             // $email= $user->email;
+               
+    //             // $sendmail=Mail::to($email)->send(new EmailVerification());
+    //             $token = Str::random(40);
+    //             $domain = env('NEXT_URL_LOGIN');
+    //             $url = $domain . '/?token=' . $token;
+    //             $mail['url'] = $url;
+    //             $mail['email'] = $request->email;
+    //             $mail['title'] = "Verify Your Account";
+    //             $mail['body'] = "Please click on below link to verify your Account";
+    //             $user->where('id',$user->id)->update(['email_verification_token'=>$token,'email_verified_at'=>Carbon::now()]);
 
+    //             Mail::send('email.emailVerify', ['mail' => $mail], function ($message) use ($mail) {
+    //                 $message->to($mail['email'])->subject($mail['title']);
+    //             });
     //             $token = JWTAuth::fromUser($user);
-
-    //             return response()->json(['status' => true, 'message' => 'User register successfully', 'data' => ['user' => $user, 'token' => $token, 'otp' => $otp]], 200);
+               
+    //             return response()->json(['status' => true, 'message' => 'Verification link has been sent to your email.', 'data' => ['user' => $user, 'token'=>$token]], 200);
     //         }
     //     } catch (\Exception $e) {
     //         throw new HttpException(500, $e->getMessage());
+    //         return response()->json(['success' => true, 'msg' => 'User has not been Register Successfully.'], 500);
     //     }
     // }
 
+    public function userRegister(Request $request)
+{
+   try {
+        $validator = Validator::make($request->all(), [
+            'firstname' => 'required|max:255',
+            'lastname' => 'required|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:8|max:16',
+            'role' => 'required|string'
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        } else {
+            // Store the user in the database
+            $user = new User();
+            $user->name = $request->firstname . " " . $request->lastname;
+            $user->email = $request->email;
+            $user->password = Hash::make($request->password);
+            $user->role     = $request->role;
+            $data = $user->save();
+            $token = Str::random(40);
+            $domain = env('NEXT_URL_LOGIN');
+            $url = $domain . '/?token=' . $token;
+            $mail['url'] = $url;
+            $mail['email'] = $request->email;
+            $mail['title'] = "Verify Your Account";
+            $mail['body'] = "Please click on below link to verify your Account";
+            $user->where('id',$user->id)->update(['email_verification_token'=>$token,'email_verified_at'=>Carbon::now()]);
 
+            Mail::send('email.emailVerify', ['mail' => $mail], function ($message) use ($mail) {
+                $message->to($mail['email'])->subject($mail['title']);
+            });
+            $token = JWTAuth::fromUser($user);
+           
+            return response()->json(['status' => true, 'message' => 'Verification link has been sent to your email.', 'data' => ['user' => $user, 'token'=>$token]], 200);
+        }
+    } catch (\Exception $e) {
+        throw new HttpException(500, $e->getMessage());
+        return response()->json(['success' => true, 'msg' => 'User has not been Register Successfully.'], 500);
+    }
+}
 
     public function user_login(Request $request)
     {
@@ -272,39 +190,7 @@ class UserController extends Controller
             throw new HttpException(500, $e->getMessage());
         }
     }
-    public function store_bank_detail(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'bank_name' => 'required',
-                'account_holder' => 'required|min:4|max:16',
-                'account_no'   => 'required|min:12|max:16',
-                'ifsc_code'   => 'required|min:11|max:15'
-            ]);
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Validation error',
-                    'errors' => $validator->errors(),
-                ], 422);
-            }
-            $bank = new BankDetails();
-            $bank->user_id = $request->user_id;
-            $bank->business_id = $request->business_id;
-            $bank->bank_name = $request->bank_name;
-            $bank->account_holder = $request->account_holder;
-            $bank->account_no = $request->account_no;
-            $bank->ifsc_code = $request->ifsc_code;
-            $savedata = $bank->save();
-            if ($savedata) {
-                return response()->json(['status' => true, 'message' => "Bank detail has been stored succesfully", 'data' => $savedata], 200);
-            } else {
-                return response()->json(['status' => false, 'message' => "There has been error for storing the bank detail", 'data' => ""], 400);
-            }
-        } catch (\Exception $e) {
-            throw new HttpException(500, $e->getMessage());
-        }
-    }
+ 
     public function update_bank_detail(Request $request)
     {
         try {

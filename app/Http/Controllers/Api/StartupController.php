@@ -44,7 +44,6 @@ class StartupController extends Controller
             } 
             else {
                 // Store the user in the database
-                // $user= $request->country;
             $user = User::find($request->id);
                         $user->email = $request->email;
                         $user->gender = $request->gender;
@@ -55,26 +54,6 @@ class StartupController extends Controller
                         $user->country = $request->country;
                         $user->reg_step_1 = '1';
                         $user->save();
-            //             $user->linkedin_url = $request->linkedin_url;
-            // $user=  User::where('id', $request->id)->update([
-            //     'email' => $request->email,
-            //     'gender' =>$request->gender,
-            //     'linkedin_url' => $request->linkedin_url,
-            //     'city' => $request->city,
-            //     'phone' => $request->phone,
-            //     'country' => $request->country,
-            //     'reg_step_1'=>'1'
-            //  ]);
-            //   $user=  User::where('id', $request->id)->update([
-            //     'email' => $request->email,
-            //     'gender' =>$request->gender,
-            //     'linkedin_url' => $request->linkedin_url,
-            //     'city' => $request->city,
-            //     'phone' => $request->phone,
-            //     'country' => $request->country,
-            //     'reg_step_1'=>'1'
-            //  ]);
-            //     $user_id = User::find($request->id);
             return response()->json(['status' => true, 'message' => 'Profile updated successfully', 'data' => ['user' => $user]], 200);
             }
         } catch (\Exception $e) {
@@ -107,9 +86,6 @@ class StartupController extends Controller
             // $data->department    =  $request->department;
             $data->startup_date    =  $request->startup_date;
             $data->description   =  $request->description;
-            // $data->primary_residence=$request->primary_residence;
-            // $data->prev_experience =$request->prev_experience;
-            // $data->experience     = $request->experience;
             $data->cofounder     = $request->cofounder;
             // if ($request->hasFile('logo')) {
             //     $randomNumber = mt_rand(1000000000, 9999999999);
@@ -119,7 +95,6 @@ class StartupController extends Controller
             //     $data->logo = $imageName;
             // }
             $data->logo          =$request->logo;
-            // $data->none_select   =$request->none_select;
             $data->kyc_purposes  = $request->kyc_purposes;
             $data->tagline       = $request->tagline;
             $data->sector        = $request->sector;
