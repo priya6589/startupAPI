@@ -65,15 +65,15 @@ class InvestorController extends Controller
     public function investor_type_information(Request $request)
     {
         try {
-              $data=User::find($request->user_id);
+              $data=User::find($request->id);
               $data->investorType=$request->investorType;
               $data->reg_step_2 = '1';
               $data->is_profile_completed = '1';
               $data->save();
+        
               $mail['email'] = $data->email;
               $mail['title'] = "Profile Completed";
               $mail['body'] =  "Profile has been Completed Successfully.";
-      
               Mail::send('email.InvestorProfileCompleted', ['mail' => $mail], function ($message) use ($mail) {
                   $message->to($mail['email'])->subject($mail['title']);
               });

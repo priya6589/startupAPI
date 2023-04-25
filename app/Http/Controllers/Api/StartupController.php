@@ -29,11 +29,12 @@ class StartupController extends Controller
         try {
            
             $validator = Validator::make($request->all(), [
+                // 'country_code' => 'required|string',
                 'phone' => 'required',
                 'gender' => 'required',
                 'city' => 'required',
                 'country' => 'required',
-                'linkedin_url' => 'required|url'
+                'linkedin_url' => 'required|url', 
             ]);
             if ($validator->fails()) {
                 return response()->json([
@@ -50,11 +51,14 @@ class StartupController extends Controller
                         $user->linkedin_url = $request->linkedin_url;
                         $user->gender = $request->gender;
                         $user->city = $request->city;
-                        $user->phone = $request->phone;
-                        $user->country = $request->country;
+                        $user->phone =
+                        $request->phone;
+                        $user->country_code= $request->country_code;
+                        $user->country =$request->country;
                         $user->reg_step_1 = '1';
                         $user->save();
-            return response()->json(['status' => true, 'message' => 'Profile updated successfully', 'data' => ['user' => $user]], 200);
+                        
+            return response()->json(['status' => true, 'message' => 'Profile updated successfully', 'data' => ['user' => $request->country]], 200);
             }
         } catch (\Exception $e) {
             throw new HttpException(500, $e->getMessage());
