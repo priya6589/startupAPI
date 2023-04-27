@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('phone')->unique()->nullable();
             $table->string('email_verification_token')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            // $table->string('email_verification_token')->nullable();
             $table->string('password')->nullable();
             $table->string('new_password')->nullable();
             $table->string('gender')->nullable();;
@@ -29,13 +28,11 @@ return new class extends Migration
             $table->string('linkedin_url')->nullable();
             $table->text('profile')->nullable();
             $table->string('investor_type')->nullable();
-            // $table->string('experience')->nullable();
             $table->string('profile_pic')->nullable();
             $table->text('profile_desc')->nullable();
-            // $table->boolean('kyc_purposes')->nullable();
             $table->enum('status',['active','inactive','deleted'])->default('active');
             // $table->enum('role',['user','investor','founder'])->default('user');
-            $table->string('role');
+            $table->enum('role',['startup','investor','admin'])->default('startup');
             $table->enum('approval_status',['approved','pending','cencelled'])->default('pending');
             $table->boolean('reg_step_1')->default(0);
             $table->boolean('reg_step_2')->default(0);

@@ -26,102 +26,52 @@ use App\Models\PasswordReset;
 
 class UserController extends Controller
 {
-    // public function userRegister(Request $request)
-    // {
-    //    try {
-
-    //         $validator = Validator::make($request->all(), [
-    //             'firstname' => 'required|max:255',
-    //             'lastname' => 'required|max:255',
-    //             'email' => 'required|email|unique:users',
-    //             'password' => 'required|string|min:8|max:16',
-    //             'role' => 'required|string'
-    //         ]);
-    //         if ($validator->fails()) {
-    //             return response()->json([
-    //                 'status' => false,
-    //                 'message' => 'Validation error',
-    //                 'errors' => $validator->errors(),
-    //             ], 422);
-    //         } else {
-    //             // Store the user in the database
-    //             $user = new User();
-    //             $user->name = $request->firstname . " " . $request->lastname;
-    //             $user->email = $request->email;
-    //             $user->password = Hash::make($request->password);
-    //             $user->role     = $request->role;
-    //             $data = $user->save();
-    //             // $email_verification_token = Str::random(64);
-    //             // $email= $user->email;
-               
-    //             // $sendmail=Mail::to($email)->send(new EmailVerification());
-    //             $token = Str::random(40);
-    //             $domain = env('NEXT_URL_LOGIN');
-    //             $url = $domain . '/?token=' . $token;
-    //             $mail['url'] = $url;
-    //             $mail['email'] = $request->email;
-    //             $mail['title'] = "Verify Your Account";
-    //             $mail['body'] = "Please click on below link to verify your Account";
-    //             $user->where('id',$user->id)->update(['email_verification_token'=>$token,'email_verified_at'=>Carbon::now()]);
-
-    //             Mail::send('email.emailVerify', ['mail' => $mail], function ($message) use ($mail) {
-    //                 $message->to($mail['email'])->subject($mail['title']);
-    //             });
-    //             $token = JWTAuth::fromUser($user);
-               
-    //             return response()->json(['status' => true, 'message' => 'Verification link has been sent to your email.', 'data' => ['user' => $user, 'token'=>$token]], 200);
-    //         }
-    //     } catch (\Exception $e) {
-    //         throw new HttpException(500, $e->getMessage());
-    //         return response()->json(['success' => true, 'msg' => 'User has not been Register Successfully.'], 500);
-    //     }
-    // }
 
     public function userRegister(Request $request)
-{
-   try {
-        $validator = Validator::make($request->all(), [
-            'firstname' => 'required|max:255',
-            'lastname' => 'required|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:8|max:16',
-            'role' => 'required|string',
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Validation error',
-                'errors' => $validator->errors(),
-            ], 422);
-        } else {
-            // Store the user in the database
-            $user = new User();
-            $user->name = $request->firstname . " " . $request->lastname;
-            $user->email = $request->email;
-            $user->password = Hash::make($request->password);
-            $user->role     = $request->role;
-            $data = $user->save();
-            $token = Str::random(40);
-            $domain = env('NEXT_URL_LOGIN');
-            $url = $domain . '/?token=' . $token;
-            $mail['url'] = $url;
-            $mail['email'] = $request->email;
-            $mail['title'] = "Verify Your Account";
-            $mail['body'] = "Please click on below link to verify your Account";
-            $user->where('id',$user->id)->update(['email_verification_token'=>$token,'email_verified_at'=>Carbon::now()]);
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'firstname' => 'required|max:255',
+                'lastname' => 'required|max:255',
+                'email' => 'required|email|unique:users',
+                'password' => 'required|string|min:8|max:16',
+                'role' => 'required|string',
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validator->errors(),
+                ], 422);
+            } else {
+                // Store the user in the database
+                $user = new User();
+                $user->name = $request->firstname . " " . $request->lastname;
+                $user->email = $request->email;
+                $user->password = Hash::make($request->password);
+                $user->role     = $request->role;
+                $data = $user->save();
+                $token = Str::random(40);
+                $domain = env('NEXT_URL_LOGIN');
+                $url = $domain . '/?token=' . $token;
+                $mail['url'] = $url;
+                $mail['email'] = $request->email;
+                $mail['title'] = "Verify Your Account";
+                $mail['body'] = "Please click on below link to verify your Account";
+                $user->where('id', $user->id)->update(['email_verification_token' => $token, 'email_verified_at' => Carbon::now()]);
 
-            Mail::send('email.emailVerify', ['mail' => $mail], function ($message) use ($mail) {
-                $message->to($mail['email'])->subject($mail['title']);
-            });
-            $token = JWTAuth::fromUser($user);
-           
-            return response()->json(['status' => true, 'message' => 'Verification link has been sent to your email.', 'data' => ['user' => $user, 'token'=>$token]], 200);
+                Mail::send('email.emailVerify', ['mail' => $mail], function ($message) use ($mail) {
+                    $message->to($mail['email'])->subject($mail['title']);
+                });
+                $token = JWTAuth::fromUser($user);
+
+                return response()->json(['status' => true, 'message' => 'Verification link has been sent to your email.', 'data' => ['user' => $user, 'token' => $token]], 200);
+            }
+        } catch (\Exception $e) {
+            throw new HttpException(500, $e->getMessage());
+            return response()->json(['success' => true, 'msg' => 'User has not been Register Successfully.'], 500);
         }
-    } catch (\Exception $e) {
-        throw new HttpException(500, $e->getMessage());
-        return response()->json(['success' => true, 'msg' => 'User has not been Register Successfully.'], 500);
     }
-}
 
     public function user_login(Request $request)
     {
@@ -162,120 +112,8 @@ class UserController extends Controller
             return response()->json(['success' => true, 'msg' => 'User is not authorized to log in successfully.'], 500);
         }
     }
-    
-    public function update_profile(Request $request)
-    {
-        try {
-            $user = User::find($request->id);
-            $user->name =  $request->name;
-            $user->phone_no = $request->phone_no;
-            $user->gender =  $request->gender;
-            $user->city = $request->city;
-            $user->country = $request->country;
-            $user->linkedin_url = $request->linkedin_url;
-            if ($request->hasFile('profile_pic')) {
-                $randomNumber = mt_rand(1000000000, 9999999999);
-                $imagePath = $request->file('profile_pic');
-                $imageName = $randomNumber . $imagePath->getClientOriginalName();
-                $imagePath->move('images/profile', $imageName);
-                $user->profile_pic = $imageName;
-            }
-            $savedata = $user->save();
-            if ($savedata) {
-                return response()->json(['status' => true, 'message' => "Profile has been updated succesfully", 'data' => $savedata], 200);
-            } else {
-                return response()->json(['status' => false, 'message' => "There has been error for updating the profile", 'data' => ""], 200);
-            }
-        } catch (\Exception $e) {
-            throw new HttpException(500, $e->getMessage());
-        }
-    }
- 
-    public function update_bank_detail(Request $request)
-    {
-        try {
-            $bank = BankDetails::find($request->id);
-            $bank->user_id = $request->user_id;
-            $bank->business_id = $request->business_id;
-            $bank->bank_name = $request->bank_name;
-            $bank->account_holder = $request->account_holder;
-            $bank->account_no = $request->account_no;
-            $bank->ifsc_code = $request->ifsc_code;
-            $savedata = $bank->save();
-            if ($savedata) {
-                return response()->json(['status' => true, 'message' => "Bank detail has been updated succesfully", 'data' => $savedata], 200);
-            } else {
-                return response()->json(['status' => false, 'message' => "There has been error for updating the bank detail", 'data' => ""], 400);
-            }
-        } catch (\Exception $e) {
-            throw new HttpException(500, $e->getMessage());
-        }
-    }
-    public function business_detail_update(Request $request)
-    {
-        try {
-            $user = User::where('id', $request->id)->first();
-            if ($user) {
-                $business = Business::find($request->id);
-                $business->business_name = $request->business_name;
-                $business->user_id = $user->id;
-                $business->reg_businessname = $request->reg_businessname;
-                $business->website_url = $request->website_url;
-                $business->sector = $request->sector;
-                $business->stage = $request->stage;
-                $business->startup_date = $request->startup_date;
-                if ($request->hasFile('logo')) {
-                    $randomNumber = mt_rand(1000000000, 9999999999);
-                    $imagePath = $request->file('logo');
-                    $imageName = $randomNumber . $imagePath->getClientOriginalName();
-                    $imagePath->move('images/profile', $imageName);
-                    $business->logo = $imageName;
-                }
-                $business->description = $request->description;
-                $savedata = $business->save();
-            }
-            if ($savedata) {
-                return response()->json(['status' => true, 'message' => "Business detail has been stored succesfully", 'data' => $savedata], 200);
-            } else {
-                return response()->json(['status' => false, 'message' => "There has been error for storing the business detail", 'data' => ""], 400);
-            }
-        } catch (\Exception $e) {
-            throw new HttpException(500, $e->getMessage());
-        }
-    }
-    public function document_upload(Request $request)
-    {
-        try {
-            $user = User::where('id', $request->id)->first();
-            if ($user) {
-                $update = User::find($request->id);
-                $update->proof1_no = $request->proof1_no;
-                $update->proof2_no = $request->proof2_no;
-                if ($request->hasFile('proof1_pic')) {
-                    $randomNumber = mt_rand(1000000000, 9999999999);
-                    $imagePath = $request->file('proof1_pic');
-                    $imageName = $randomNumber . $imagePath->getClientOriginalName();
-                    $imagePath->move('images/document', $imageName);
-                    $update->proof1_pic = $imageName;
-                }
-                if ($request->hasFile('proof2_pic')) {
-                    $randomNumber = mt_rand(1000000000, 9999999999);
-                    $imagePath = $request->file('proof2_pic');
-                    $imageName = $randomNumber . $imagePath->getClientOriginalName();
-                    $imagePath->move('images/document', $imageName);
-                    $update->proof2_pic = $imageName;
-                }
-                $savedata = $update->save();
-            }
-            if ($savedata) {
-                return response()->json(['status' => true, 'message' => "Document  has been uploaded succesfully", 'data' => $savedata], 200);
-            } else {
-                return response()->json(['status' => false, 'message' => "There has been error for uploading the document", 'data' => ""], 400);
-            }
-        } catch (\Exception $e) {
-            throw new HttpException(500, $e->getMessage());
-        }
-    }
+
+
     public function get_single_user(Request $request)
     {
         try {
@@ -329,24 +167,6 @@ class UserController extends Controller
         }
     }
 
-    public function join_to_invest(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'email' => 'required|email|unique:users',
-            ]);
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'invalid email error',
-                    'errors' => $validator->errors(),
-                ], 200);
-            } else {
-                return response()->json(['status' => true, 'message' => "valid email", 'data' => $request->all()], 200);
-            }
-        } catch (\Exception $e) {
-        }
-    }
     public function send_otp(Request $request)
     {
         try {
@@ -366,7 +186,7 @@ class UserController extends Controller
             }
             $user->phone = $request->phone;
             $user->save();
-            
+
             $otp = VerificationCode::where('user_id', $user->id)->first();
             if ($otp) {
                 $otp->otp = rand(1000, 9999);
@@ -419,14 +239,15 @@ class UserController extends Controller
         }
     }
 
-    public function reset_password(Request $request){
-          
+    public function reset_password(Request $request)
+    {
+
         try {
             $user =  User::where('email', $request->email)->first();
             if ($user) {
                 $token = Str::random(40);
                 $domain = env('NEXT_URL');
-                $url = $domain . '/?userid='.$user->id.'&resettoken=' . $token;
+                $url = $domain . '/?userid=' . $user->id . '&resettoken=' . $token;
                 $data['url'] = $url;
                 $data['email'] = $request->email;
                 $data['title'] = "password reset";
@@ -456,15 +277,15 @@ class UserController extends Controller
         $resetData = PasswordReset::where('user_id', $request->id)->where('token', $request->token)->count();
 
         if ($resetData > 0) {
-            return response()->json(['status' => true, ]);
+            return response()->json(['status' => true,]);
         } else {
             return response()->json(['status' => false, 'message' => 'Invalid User Authoriztation']);
         }
     }
 
     public function updated_reset_password(Request $request)
-   
-     {
+
+    {
         try {
             $request->validate([
                 'password' => 'required|string|min:8',
@@ -511,5 +332,4 @@ class UserController extends Controller
             return response()->json(['success' => true, 'msg' => 'Password reset failed'], 200);
         }
     }
-    
 }
